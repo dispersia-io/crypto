@@ -1,0 +1,53 @@
+name: Publish package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish-npm:
+    name: Publish to npm registry
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node via Volta
+        uses: volta-cli/action@v5
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Determine npm tag
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          if [[ "$VERSION" == *"-"* ]]; then
+            PRERELEASE=$(echo "$VERSION" | awk -F'-' '{print $2}' | awk -F'.' '{print $1}')
+            echo "NPM_TAG=$PRERELEASE" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
+
+      - name: Setup npm auth
+        run: echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
+
+      - name: Publish @dispersiajs/crypto
+        run: npm publish --provenance --access public --tag ${{ env.NPM_TAG }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
