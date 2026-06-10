@@ -14,8 +14,13 @@ yarn-error.log*
 build
 dist
 target
+temp
 coverage
 .cache
+
+# development
+translator/wasm.js
+translator/wasm.d.ts
 
 # misc
 .DS_Store
