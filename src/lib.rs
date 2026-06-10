@@ -88,11 +88,19 @@ impl Crypto {
 
         let now = js_sys::Date::now() as u64;
 
-        if now > payload.timestamp + max_age_ms {
+        let is_expired = payload.timestamp
+            .checked_add(max_age_ms)
+            .map_or(true, |expiry_time| now > expiry_time);
+
+        if is_expired {
             return Err(format_error("Validation failed", "Payload expired (exceeds max age limit)"));
         }
 
-        if payload.timestamp > now + 10000 {
+        let is_future = now
+            .checked_add(10000)
+            .map_or(true, |future_limit| payload.timestamp > future_limit);
+
+        if is_future {
             return Err(format_error("Validation failed", "Payload timestamp is from the future"));
         }
 
