@@ -36,7 +36,11 @@
     "build:wasm": "npm run build:wasm:esm && npm run build:wasm:cjs",
     "build:ts": "tsc",
     "arrange": "mkdir -p dist/esm dist/cjs && cp temp/esm/wasm* dist/esm/ && cp temp/cjs/wasm* dist/cjs/ && mv dist/esm.mjs dist/esm/index.js && mv dist/esm.d.mts dist/esm/index.d.ts && mv dist/commonjs.cjs dist/cjs/index.js && mv dist/commonjs.d.cts dist/cjs/index.d.ts",
-    "build": "npm run clean && npm run build:wasm && npm run build:ts && npm run arrange && npm run cleanup"
+    "build": "npm run clean && npm run build:wasm && npm run build:ts && npm run arrange && npm run cleanup",
+    "deps:audit": "bash ./scripts/deps/audit.sh",
+    "scripts:exec": "find ./scripts -type f -name \"*.sh\" -exec",
+    "scripts:perms": "yarn scripts:exec chmod +x {} +",
+    "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
