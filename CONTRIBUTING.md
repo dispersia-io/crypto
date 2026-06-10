@@ -93,7 +93,7 @@ Before pushing your changes and opening a PR, please run:
 - `yarn lint:fix` — To ensure JS/TS code style compliance and formatting.
 - `yarn lint:strict` — To verify that there are no remaining warnings in either ESLint or Cargo Clippy.
 - `yarn typecheck` — To ensure TypeScript integrity.
-- `yarn build` — To verify that the WebAssembly modules and TypeScript wrappers compile correctly.
+- `yarn build` — To verify that the WebAssembly modules and TypeScript translator compile correctly.
 
 ---
 
