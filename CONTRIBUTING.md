@@ -22,7 +22,7 @@ To ensure a consistent development environment, the following tools are required
 - **Rust & Cargo**: Required for building the WebAssembly core.
 - **wasm-pack**: Required for compiling Rust to WebAssembly.
 
-Run `yarn setup` from the root directory to initialize the environment. This command runs `yarn install` and configures Git hooks via Husky (`yarn setup:husky`).
+Run `yarn setup` from the root directory to initialize the environment. This command runs `yarn install`, `cargo fetch` and configures Git hooks via Husky (`yarn setup:husky`).
 
 ## 🌿 Branching Strategy and Workflow
 

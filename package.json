@@ -37,7 +37,7 @@
     "format": "prettier -c . && cargo fmt --check",
     "format:fix": "prettier -w . && cargo fmt",
     "typecheck": "tsc --noEmit --incremental false",
-    "setup": "yarn install && yarn setup:husky",
+    "setup": "yarn install && cargo fetch && yarn setup:husky",
     "setup:husky": "husky && chmod +x ./.husky/*",
     "clean": "rm -rf dist temp",
     "cleanup": "rm -rf temp",
