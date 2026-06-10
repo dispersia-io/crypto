@@ -25,7 +25,7 @@ jobs:
           - language: javascript-typescript
             build-mode: none
           - language: rust
-            build-mode: manual
+            build-mode: none
 
     steps:
       - name: Checkout repository
@@ -37,12 +37,6 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/config.yml
-
-      - name: Install Rust toolchain & Check
-        if: matrix.language == 'rust'
-        run: |
-          rustup target add wasm32-unknown-unknown
-          cargo check --lib
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
