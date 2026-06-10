@@ -8,6 +8,8 @@ updates:
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
+      - dependency-name: '@bcoe/v8-coverage'
+        update-types: ['version-update:semver-minor']
       - dependency-name: '@dispersiajs/crypto'
         update-types: ['version-update:semver-minor']
       - dependency-name: '@eslint/config-array'
@@ -26,15 +28,21 @@ updates:
         update-types: ['version-update:semver-minor']
       - dependency-name: '@humanwhocodes/retry'
         update-types: ['version-update:semver-minor']
+      - dependency-name: '@istanbuljs/schema'
+        update-types: ['version-update:semver-minor']
       - dependency-name: '@jridgewell/gen-mapping'
         update-types: ['version-update:semver-minor']
       - dependency-name: '@jridgewell/trace-mapping'
         update-types: ['version-update:semver-minor']
       - dependency-name: '@ota-meshi/ast-token-store'
         update-types: ['version-update:semver-minor']
+      - dependency-name: '@pkgjs/parseargs'
+        update-types: ['version-update:semver-minor']
       - dependency-name: '@pkgr/core'
         update-types: ['version-update:semver-minor']
       - dependency-name: '@reteps/dockerfmt'
+        update-types: ['version-update:semver-minor']
+      - dependency-name: '@sinclair/typebox'
         update-types: ['version-update:semver-minor']
       - dependency-name: '@tybys/wasm-util'
         update-types: ['version-update:semver-minor']
@@ -42,17 +50,27 @@ updates:
         update-types: ['version-update:semver-minor']
       - dependency-name: 'ast-types-flow'
         update-types: ['version-update:semver-minor']
+      - dependency-name: 'bs-logger'
+        update-types: ['version-update:semver-minor']
       - dependency-name: 'concat-map'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'confbox'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'deep-is'
         update-types: ['version-update:semver-minor']
+      - dependency-name: 'eastasianwidth'
+        update-types: ['version-update:semver-minor']
+      - dependency-name: 'emittery'
+        update-types: ['version-update:semver-minor']
       - dependency-name: 'eslint-import-resolver-node'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'eslint-json-compat-utils'
         update-types: ['version-update:semver-minor']
+      - dependency-name: 'exit-x'
+        update-types: ['version-update:semver-minor']
       - dependency-name: 'for-each'
+        update-types: ['version-update:semver-minor']
+      - dependency-name: 'get-package-type'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'hermes-estree'
         update-types: ['version-update:semver-minor']
@@ -70,6 +88,8 @@ updates:
         update-types: ['version-update:semver-minor']
       - dependency-name: 'napi-postinstall'
         update-types: ['version-update:semver-minor']
+      - dependency-name: 'node-int64'
+        update-types: ['version-update:semver-minor']
       - dependency-name: 'optionator'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'prettier-plugin-sh'
@@ -82,6 +102,10 @@ updates:
         update-types: ['version-update:semver-minor']
       - dependency-name: 'sh-syntax'
         update-types: ['version-update:semver-minor']
+      - dependency-name: 'source-map'
+        update-types: ['version-update:semver-minor']
+      - dependency-name: 'source-map-support'
+        update-types: ['version-update:semver-minor']
       - dependency-name: 'stable-hash'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'string-argv'
@@ -91,6 +115,8 @@ updates:
       - dependency-name: 'tinyglobby'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'type-check'
+        update-types: ['version-update:semver-minor']
+      - dependency-name: 'type-fest'
         update-types: ['version-update:semver-minor']
       - dependency-name: 'yocto-queue'
         update-types: ['version-update:semver-minor']
