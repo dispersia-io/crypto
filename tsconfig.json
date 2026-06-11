@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "types": ["node"],
+    "moduleResolution": "Bundler",
+    "types": ["node", "jest"],
     "declaration": true,
-    "rootDir": "./translator",
-    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["translator/**/*"]
+  "include": ["translator/**/*", "tests/**/*"]
 }

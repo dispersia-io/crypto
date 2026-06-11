@@ -1,5 +1,5 @@
-import { CryptoError } from './model/error.cjs';
-import { type InitOptions, type DecryptOptions, type ICrypto } from './model/interface.cjs';
+import { CryptoError } from './model/error.js';
+import { type InitOptions, type DecryptOptions, type ICrypto } from './model/interface.js';
 import { Crypto as WasmCrypto } from './wasm.js';
 
 export class Crypto implements ICrypto {
@@ -7,7 +7,7 @@ export class Crypto implements ICrypto {
 
   constructor() {}
 
-  public static init(options: InitOptions): ICrypto {
+  public static init(options: InitOptions): Crypto {
     const { publicKey, privateKey } = options;
 
     if (!publicKey && !privateKey) {

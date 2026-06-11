@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "rootDir": "./translator",
+    "outDir": "./dist/cjs"
+  },
+  "include": ["translator/cjs.ts", "translator/model/**/*"]
+}
