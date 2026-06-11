@@ -1,0 +1,81 @@
+{
+  "name": "@dispersiajs/crypto",
+  "version": "1.0.0-canary.0",
+  "description": "Isomorphic cryptography layer using Rust WASM",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./esm": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
+    },
+    "./commonjs": {
+      "types": "./dist/cjs/index.d.ts",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint:js": "eslint ./translator -c ./eslint.config.mjs",
+    "lint:rs": "cargo clippy",
+    "lint": "yarn lint:js && yarn lint:rs",
+    "lint:fix": "yarn lint:js --fix && yarn format:fix",
+    "lint:strict": "yarn lint:js --max-warnings=0 && yarn lint:rs -- -D warnings && yarn format",
+    "format": "prettier -c . && cargo fmt --check",
+    "format:fix": "prettier -w . && cargo fmt",
+    "typecheck": "tsc --noEmit --incremental false",
+    "setup": "yarn install && cargo fetch && yarn setup:husky",
+    "setup:husky": "husky && chmod +x ./.husky/*",
+    "clean": "rm -rf dist temp",
+    "cleanup": "rm -rf temp",
+    "build:wasm:esm": "wasm-pack build --target web --out-dir temp/esm",
+    "build:wasm:cjs": "wasm-pack build --target nodejs --out-dir temp/cjs",
+    "build:wasm": "npm run build:wasm:esm && npm run build:wasm:cjs",
+    "build:ts": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
+    "arrange": "cp temp/esm/wasm* dist/esm/ && cp temp/cjs/wasm* dist/cjs/ && mv dist/esm/esm.js dist/esm/index.js && mv dist/esm/esm.d.ts dist/esm/index.d.ts && mv dist/cjs/cjs.js dist/cjs/index.js && mv dist/cjs/cjs.d.ts dist/cjs/index.d.ts && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "build": "yarn clean && yarn build:wasm && yarn build:ts && yarn arrange && yarn cleanup",
+    "deps:audit": "bash ./scripts/deps/audit.sh",
+    "scripts:exec": "find ./scripts -type f -name \"*.sh\" -exec",
+    "scripts:perms": "yarn scripts:exec chmod +x {} +",
+    "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +",
+    "test:js": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:rs": "wasm-pack test --node",
+    "test": "yarn build && yarn test:js && yarn test:rs"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.13.1",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-woofmeow": "^2.1.0",
+    "husky": "^9.1.7",
+    "jest": "^30.4.2",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.3",
+    "prettier-plugin-sh": "^0.18.1",
+    "ts-jest": "^29.4.11",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": "^20.9.0 || >=21.1.0 <25.0.0"
+  },
+  "volta": {
+    "node": "24.14.1",
+    "yarn": "4.13.0"
+  }
+}
