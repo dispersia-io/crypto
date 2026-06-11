@@ -34,6 +34,12 @@ jobs:
       - name: Build Project
         run: npm run build
 
+      - name: Test Rust modules
+        run: npm run test:rs
+
+      - name: Test JS/TS modules
+        run: npm run test:js
+
       - name: Determine npm tag
         run: |
           VERSION="${{ github.event.release.tag_name }}"
