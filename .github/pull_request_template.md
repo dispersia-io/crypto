@@ -32,6 +32,7 @@
 - [ ] I have read the `CONTRIBUTING.md` document.
 - [ ] I have run `yarn install` and/or `cargo check` to ensure dependency integrity.
 - [ ] I have run `yarn typecheck` and `yarn build` successfully (compiling both Rust WASM and TS).
+- [ ] I have run `yarn test` and all tests (Rust & Jest) passed.
 - [ ] I have run `yarn lint:strict` (ESLint & Clippy) and my changes generate no warnings.
 - [ ] I have run `yarn format:fix` (Prettier & rustfmt) to ensure code style compliance.
 
@@ -39,5 +40,6 @@
 
 <!-- Please describe how you verified your changes. -->
 
-- [ ] Tested locally by running integration scripts with the compiled WASM module.
-- [ ] ...
+- [ ] **Rust Core**: Ran `yarn test:rs` to verify internal logic.
+- [ ] **TS Integration**: Ran `yarn test:js` to verify the public API and WASM initialization.
+- [ ] **Manual Verification**: (e.g., tested with a local link in a real browser environment)
