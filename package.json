@@ -43,17 +43,21 @@
     "clean": "rm -rf dist temp",
     "cleanup": "rm -rf temp",
     "build:wasm:esm": "wasm-pack build --target web --out-dir temp/esm",
+    "build:wasm:esm:opt": "wasm-opt -O3 temp/esm/crypto_bg.wasm -o temp/esm/crypto_bg.wasm --enable-bulk-memory --enable-nontrapping-float-to-int",
     "build:wasm:cjs": "wasm-pack build --target nodejs --out-dir temp/cjs",
-    "build:wasm": "npm run build:wasm:esm && npm run build:wasm:cjs",
+    "build:wasm:cjs:opt": "wasm-opt -O3 temp/cjs/crypto_bg.wasm -o temp/cjs/crypto_bg.wasm --enable-bulk-memory --enable-nontrapping-float-to-int",
+    "build:wasm": "yarn build:wasm:esm && yarn build:wasm:esm:opt && yarn build:wasm:cjs && yarn build:wasm:cjs:opt",
     "build:ts": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
-    "arrange": "cp temp/esm/wasm* dist/esm/ && cp temp/cjs/wasm* dist/cjs/ && mv dist/esm/esm.js dist/esm/index.js && mv dist/esm/esm.d.ts dist/esm/index.d.ts && mv dist/cjs/cjs.js dist/cjs/index.js && mv dist/cjs/cjs.d.ts dist/cjs/index.d.ts && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "build": "yarn clean && yarn build:wasm && yarn build:ts && yarn arrange && yarn cleanup",
+    "build:arrange": "cp temp/esm/crypto* dist/esm/ && cp temp/cjs/crypto* dist/cjs/ && mv dist/esm/esm.js dist/esm/index.js && mv dist/esm/esm.d.ts dist/esm/index.d.ts && mv dist/cjs/cjs.js dist/cjs/index.js && mv dist/cjs/cjs.d.ts dist/cjs/index.d.ts && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "build": "yarn clean && yarn build:wasm && yarn build:ts && yarn build:arrange && yarn cleanup",
     "deps:audit": "bash ./scripts/deps/audit.sh",
     "scripts:exec": "find ./scripts -type f -name \"*.sh\" -exec",
     "scripts:perms": "yarn scripts:exec chmod +x {} +",
     "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +",
+    "test:rs:node": "wasm-pack test --node",
+    "test:rs:browser": "wasm-pack test --headless --chrome",
+    "test:rs": "yarn test:rs:node && yarn test:rs:browser",
     "test:js": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:rs": "wasm-pack test --node",
     "test": "yarn build && yarn test:js && yarn test:rs"
   },
   "devDependencies": {
@@ -70,7 +74,8 @@
     "prettier": "^3.8.3",
     "prettier-plugin-sh": "^0.18.1",
     "ts-jest": "^29.4.11",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wasm-opt": "^1.4.0"
   },
   "engines": {
     "node": "^20.9.0 || >=21.1.0 <25.0.0"

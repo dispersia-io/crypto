@@ -1,6 +1,6 @@
 import { CryptoError } from './model/error.js';
 import { type InitOptions, type DecryptOptions, type ICrypto } from './model/interface.js';
-import initWasm, { Crypto as WasmCrypto } from './wasm.js';
+import initWasm, { Crypto as WasmCrypto } from './crypto.js';
 
 export class Crypto implements ICrypto {
   private _wasm: WasmCrypto | null = null;
@@ -27,11 +27,11 @@ export class Crypto implements ICrypto {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
 
-        const wasmPath = path.resolve(__dirname, 'wasm_bg.wasm');
+        const wasmPath = path.resolve(__dirname, 'crypto_bg.wasm');
 
         wasmBytes = await fs.readFile(wasmPath);
-      } catch {
-        throw new CryptoError('Failed to read local WASM file in Node.js environment.');
+      } catch (error) {
+        throw new CryptoError('Failed to read local WASM file in Node.js environment.', error);
       }
     }
 

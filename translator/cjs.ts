@@ -1,6 +1,6 @@
 import { CryptoError } from './model/error.js';
 import { type InitOptions, type DecryptOptions, type ICrypto } from './model/interface.js';
-import { Crypto as WasmCrypto } from './wasm.js';
+import { Crypto as WasmCrypto } from './crypto.js';
 
 export class Crypto implements ICrypto {
   private _wasm: WasmCrypto | null = null;

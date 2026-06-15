@@ -91,7 +91,7 @@ Run these commands from the root directory:
 
 We use a two-tier testing strategy to ensure end-to-end reliability:
 
-1. **Rust Unit Tests**: Located within `src/lib.rs` (under `#[cfg(test)]`). These use `wasm-bindgen-test` to verify core cryptographic logic, time-based validation, and internal memory handling.
+1. **Rust Unit Tests**: Located within `tests/lib.rs`. These use `wasm-bindgen-test` to verify core cryptographic logic, time-based validation, and internal memory handling.
 2. **TypeScript Integration Tests**: Located in the `tests/` directory. These use Jest to test the public API, ensuring that the WASM module is correctly initialized via `Crypto.init()` and that errors are properly mapped to JS exceptions.
 
 ## 🏗️ Quality Control

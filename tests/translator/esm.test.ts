@@ -49,15 +49,19 @@ describe('Crypto Translator (ESM)', () => {
     });
 
     it('throws if data for encryption is not a string', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.encrypt(123 as any)).toThrow(TypeError);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.encrypt({ foo: 'bar' } as any)).toThrow(TypeError);
     });
 
     it('throws if data for decryption is not a string', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.decrypt(123 as any, { maxAgeMs: 1000n })).toThrow(TypeError);
     });
 
     it('throws if maxAgeMs is not a BigInt', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
       expect(() => crypto.decrypt('some_data', { maxAgeMs: 1000 as any })).toThrow(TypeError);
     });
   });
@@ -75,7 +79,7 @@ describe('Crypto Translator (ESM)', () => {
       expect(encrypted).not.toEqual(plainText);
       expect(encrypted.includes(plainText)).toBe(false);
 
-      const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+      const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u;
       expect(base64Regex.test(encrypted)).toBe(true);
     });
   });

@@ -19,8 +19,8 @@ coverage
 .cache
 
 # development
-translator/wasm.js
-translator/wasm.d.ts
+translator/crypto.js
+translator/crypto.d.ts
 
 # misc
 .DS_Store
