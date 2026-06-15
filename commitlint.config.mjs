@@ -1,4 +1,4 @@
-export default {
+const commitlintConfig = {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'type-enum': [
@@ -22,3 +22,6 @@ export default {
     'header-max-length': [2, 'always', 100],
   },
 };
+
+// eslint-disable-next-line no-restricted-exports
+export default commitlintConfig;

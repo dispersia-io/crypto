@@ -2,8 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "ESNext",
-    "rootDir": "./translator",
+    "rootDir": "./src/translator",
     "outDir": "./dist/esm"
   },
-  "include": ["translator/esm.ts", "translator/model/**/*"]
+  "include": ["src/translator/esm.ts", "src/translator/model/**/*"]
 }

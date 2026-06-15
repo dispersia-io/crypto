@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
+const jestConfig = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.ts'],
@@ -7,3 +7,6 @@ export default {
   forceExit: true,
   clearMocks: true,
 };
+
+// eslint-disable-next-line no-restricted-exports
+export default jestConfig;

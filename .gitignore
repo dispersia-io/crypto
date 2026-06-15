@@ -19,8 +19,8 @@ coverage
 .cache
 
 # development
-translator/crypto.js
-translator/crypto.d.ts
+src/translator/crypto.js
+src/translator/crypto.d.ts
 
 # misc
 .DS_Store
