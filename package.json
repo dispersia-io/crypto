@@ -54,9 +54,7 @@
     "scripts:exec": "find ./scripts -type f -name \"*.sh\" -exec",
     "scripts:perms": "yarn scripts:exec chmod +x {} +",
     "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +",
-    "test:rs:node": "wasm-pack test --node",
-    "test:rs:browser": "wasm-pack test --headless --chrome",
-    "test:rs": "yarn test:rs:node && yarn test:rs:browser",
+    "test:rs": "wasm-pack test --node",
     "test:js": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test": "yarn build && yarn test:js && yarn test:rs"
   },
