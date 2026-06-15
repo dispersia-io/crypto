@@ -15,10 +15,12 @@ export class Crypto implements ICrypto {
     }
 
     if (!publicKey) {
+      // eslint-disable-next-line no-console
       console.warn('[Crypto.init]: Public key missing. Encryption unavailable.');
     }
 
     if (!privateKey) {
+      // eslint-disable-next-line no-console
       console.warn('[Crypto.init]: Private key missing. Decryption unavailable.');
     }
 

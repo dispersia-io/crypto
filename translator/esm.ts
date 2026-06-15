@@ -21,7 +21,7 @@ export class Crypto implements ICrypto {
     if (isNode) {
       try {
         const fs = await import('node:fs/promises');
-        const path = await import('node:path');
+        const { default: path } = await import('node:path');
         const { fileURLToPath } = await import('node:url');
 
         const __filename = fileURLToPath(import.meta.url);
@@ -30,19 +30,20 @@ export class Crypto implements ICrypto {
         const wasmPath = path.resolve(__dirname, 'wasm_bg.wasm');
 
         wasmBytes = await fs.readFile(wasmPath);
-      } catch (error) {
+      } catch {
         throw new CryptoError('Failed to read local WASM file in Node.js environment.');
       }
     }
 
-    // @ts-ignore
     await initWasm(wasmBytes);
 
     if (!publicKey) {
+      // eslint-disable-next-line no-console
       console.warn('[Crypto.init]: Public key missing. Encryption unavailable.');
     }
 
     if (!privateKey) {
+      // eslint-disable-next-line no-console
       console.warn('[Crypto.init]: Private key missing. Decryption unavailable.');
     }
 

@@ -594,7 +594,7 @@ __metadata:
     "@types/node": "npm:^24.13.1"
     eslint: "npm:^9.39.4"
     eslint-config-prettier: "npm:^10.1.8"
-    eslint-config-woofmeow: "npm:^2.1.0"
+    eslint-config-woofmeow: "npm:^3.0.0-canary.1"
     husky: "npm:^9.1.7"
     jest: "npm:^30.4.2"
     lint-staged: "npm:^17.0.7"
@@ -1145,12 +1145,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/eslint-plugin-next@npm:16.2.7":
-  version: 16.2.7
-  resolution: "@next/eslint-plugin-next@npm:16.2.7"
+"@next/eslint-plugin-next@npm:16.2.9":
+  version: 16.2.9
+  resolution: "@next/eslint-plugin-next@npm:16.2.9"
   dependencies:
     fast-glob: "npm:3.3.1"
-  checksum: 10/52c005d73dfd52188b9d06609c1e8ce3dca20a69744dd7e17ca9621e8405c3e21fd6166c1d40190e04287a5ee7d0b9a7f43ac5b9781287acc07d93fbac222b7c
+  checksum: 10/1c70d686291846353544bbc9f4c49c84e0b44ceda9cc8a22c31563a37929dabe4812d3393c7ef14d01017cfbf1803107c6166dbda20b0e365964fe6da4530a93
   languageName: node
   linkType: hard
 
@@ -2902,11 +2902,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-next@npm:^16.2.4":
-  version: 16.2.7
-  resolution: "eslint-config-next@npm:16.2.7"
+"eslint-config-next@npm:^16.2.9":
+  version: 16.2.9
+  resolution: "eslint-config-next@npm:16.2.9"
   dependencies:
-    "@next/eslint-plugin-next": "npm:16.2.7"
+    "@next/eslint-plugin-next": "npm:16.2.9"
     eslint-import-resolver-node: "npm:^0.3.6"
     eslint-import-resolver-typescript: "npm:^3.5.2"
     eslint-plugin-import: "npm:^2.32.0"
@@ -2921,7 +2921,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/7518a09cd3871355513f711079e6d731823c1e0b8b6f99d9abcef1b26203eb9ee77064b928b7f7daeeef3bccaafe34986cb315e513732eadd6f773529dc198c3
+  checksum: 10/0efa09cc9848973a8dfe924a56bca88ad3810978dcda8f23bbf46cae482e6a65febe46990b9d36da5a4ca4689b6082af8758d0c08122b87fedd339e6d64f556e
   languageName: node
   linkType: hard
 
@@ -2936,18 +2936,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-woofmeow@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "eslint-config-woofmeow@npm:2.1.0"
+"eslint-config-woofmeow@npm:^3.0.0-canary.1":
+  version: 3.0.0-canary.1
+  resolution: "eslint-config-woofmeow@npm:3.0.0-canary.1"
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.5"
     "@eslint/js": "npm:^9.39.4"
     "@typescript-eslint/eslint-plugin": "npm:^8.57.2"
     "@typescript-eslint/parser": "npm:^8.57.2"
-    eslint-config-next: "npm:^16.2.4"
+    eslint-config-next: "npm:^16.2.9"
     eslint-plugin-import: "npm:^2.32.0"
-    eslint-plugin-import-fsd: "npm:^3.0.1"
-    eslint-plugin-jsonc: "npm:^3.1.2"
+    eslint-plugin-import-fsd: "npm:^3.0.2"
+    eslint-plugin-jsonc: "npm:^3.2.0"
     eslint-plugin-no-relative-import-paths: "npm:^1.6.1"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.1.1"
@@ -2959,11 +2959,11 @@ __metadata:
     typescript-eslint: "npm:^8.59.0"
   peerDependencies:
     eslint: ">=9.0.0 <10.0.0"
-    typescript: ">=3.3.1 <6.0.0"
+    typescript: ">=3.3.1 <7.0.0"
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/c606f1f6dd88e9472c25717eed97ef380df28b703dff4fd345356a44320b3db074915b18726f4042dfcc75afca9732aad3d64b29ab4e5efa161376bad8517546
+  checksum: 10/3fb55de084d27319254f33fb561db472b1dc5472e04084577238edaf432fa2d5c55708c0570baa2c5ba0bdde3709ef26d43337dfdc80e5af7eeecf93f2a42e98
   languageName: node
   linkType: hard
 
@@ -3029,12 +3029,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import-fsd@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "eslint-plugin-import-fsd@npm:3.0.1"
+"eslint-plugin-import-fsd@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "eslint-plugin-import-fsd@npm:3.0.2"
   peerDependencies:
     eslint: ">=9.0.0 <10.0.0"
-  checksum: 10/87b2c0c18fcaf2fb67b5138b50af87f59c44e1a328e7642e640c2de34a54f78e16508b1a8e5ba3b0445a64787a3be50e42e52f392f17fd4084f4b3747f378de8
+  checksum: 10/318f0f1b54bfe22e84e4142c0138163efe26533aa100482d24a13264dab02d01c30b4789eb95c61383a53c0414ab90e159b2e33aa8d4e504c3bcafd30dfa755c
   languageName: node
   linkType: hard
 
@@ -3067,7 +3067,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsonc@npm:^3.1.2":
+"eslint-plugin-jsonc@npm:^3.2.0":
   version: 3.2.0
   resolution: "eslint-plugin-jsonc@npm:3.2.0"
   dependencies:
