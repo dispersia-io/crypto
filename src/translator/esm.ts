@@ -14,7 +14,7 @@ export class Crypto implements ICrypto {
       throw new CryptoError('At least one of the keys is required - public or private.');
     }
 
-    let wasmBytes: BufferSource | undefined = undefined;
+    let wasmModule: BufferSource | undefined = undefined;
 
     const isNode = typeof process !== 'undefined' && !!process.versions && !!process.versions.node;
 
@@ -29,13 +29,16 @@ export class Crypto implements ICrypto {
 
         const wasmPath = path.resolve(__dirname, 'crypto_bg.wasm');
 
-        wasmBytes = await fs.readFile(wasmPath);
+        wasmModule = await fs.readFile(wasmPath);
       } catch (error) {
-        throw new CryptoError('Failed to read local WASM file in Node.js environment.', error);
+        throw new CryptoError(
+          'Failed to read file "crypto_bg.wasm" in Node.js environment.',
+          error,
+        );
       }
     }
 
-    await initWasm(wasmBytes);
+    await initWasm({ module_or_path: wasmModule });
 
     if (!publicKey) {
       // eslint-disable-next-line no-console
