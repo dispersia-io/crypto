@@ -1,0 +1,34 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node via Volta
+        uses: volta-cli/action@v5
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Test Rust modules
+        run: yarn test:rs
+
+      - name: Test JS/TS modules
+        run: yarn test:js
