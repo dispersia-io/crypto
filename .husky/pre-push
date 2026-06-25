@@ -1,22 +1,5 @@
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
+#!/usr/bin/env bash
 
-run_task() {
-  PROGRESS_MSG="$1"
-  SUCCESS_MSG="$2"
-  shift 2
+source "$(dirname "$0")/../scripts/husky/step.sh"
 
-  printf "⏳ %-45s" "$PROGRESS_MSG..."
-
-  if OUT=$("$@" 2>&1); then
-    printf "\r${GREEN}✨ %-45s${NC}\n" "$SUCCESS_MSG"
-  else
-    printf "\r${RED}❌ %-45s${NC}\n" "$PROGRESS_MSG failed"
-    echo ""
-    echo "$OUT"
-    exit 1
-  fi
-}
-
-run_task "Running workspace type checks" "Workspace types are valid" yarn typecheck
+run_step "Running workspace type checks" "Workspace types are valid" yarn typecheck

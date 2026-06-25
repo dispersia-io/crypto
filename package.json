@@ -29,7 +29,7 @@
     "dist"
   ],
   "scripts": {
-    "lint:js": "eslint ./translator -c ./eslint.config.mjs",
+    "lint:js": "eslint ./src/translator -c ./eslint.config.mjs",
     "lint:rs": "cargo clippy",
     "lint": "yarn lint:js && yarn lint:rs",
     "lint:fix": "yarn lint:js --fix && yarn format:fix",
@@ -50,7 +50,8 @@
     "build:ts": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "build:arrange": "cp temp/esm/crypto* dist/esm/ && cp temp/cjs/crypto* dist/cjs/ && mv dist/esm/esm.js dist/esm/index.js && mv dist/esm/esm.d.ts dist/esm/index.d.ts && mv dist/cjs/cjs.js dist/cjs/index.js && mv dist/cjs/cjs.d.ts dist/cjs/index.d.ts && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build": "yarn clean && yarn build:wasm && yarn build:ts && yarn build:arrange && yarn cleanup",
-    "deps:audit": "bash ./scripts/deps/audit.sh",
+    "deps:audit": "ddx deps scan --audit",
+    "deps:audit:fix": "ddx deps scan --pin-unstable",
     "scripts:exec": "find ./scripts -type f -name \"*.sh\" -exec",
     "scripts:perms": "yarn scripts:exec chmod +x {} +",
     "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +",
@@ -61,11 +62,12 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@dispersiajs/ddx": "^1.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.1",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-config-woofmeow": "^3.0.0-canary.1",
+    "eslint-config-woofmeow": "3.0.0-canary.2",
     "husky": "^9.1.7",
     "jest": "^30.4.2",
     "lint-staged": "^17.0.7",
