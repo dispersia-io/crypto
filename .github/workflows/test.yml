@@ -2,6 +2,13 @@ name: Test
 
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+  push:
+    branches:
+      - main
+      - canary
 
 jobs:
   test:
@@ -21,6 +28,10 @@ jobs:
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
+          components: llvm-tools-preview
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -30,5 +41,14 @@ jobs:
       - name: Test Rust modules
         run: yarn test:rs
 
-      - name: Test JS/TS modules
-        run: yarn test:js
+      - name: Generate Rust coverage
+        run: yarn test:rs:coverage
+
+      - name: Test JS/TS modules & Generate coverage
+        run: yarn test:js --coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

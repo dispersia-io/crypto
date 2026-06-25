@@ -56,6 +56,7 @@
     "scripts:perms": "yarn scripts:exec chmod +x {} +",
     "scripts:perms:track": "yarn scripts:exec git update-index --chmod=+x {} +",
     "test:rs": "wasm-pack test --node",
+    "test:rs:coverage": "cargo llvm-cov --all-features --lcov --output-path coverage-rs.lcov",
     "test:js": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test": "yarn build && yarn test:js && yarn test:rs"
   },

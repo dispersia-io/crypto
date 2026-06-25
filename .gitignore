@@ -17,6 +17,7 @@ target
 temp
 coverage
 .cache
+*.lcov
 
 # development
 src/translator/crypto.js
