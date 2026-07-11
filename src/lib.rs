@@ -103,6 +103,45 @@ impl Crypto {
         })
     }
 
+    #[wasm_bindgen]
+    pub fn from_bytes(
+        public_key_bytes: &[u8],
+        private_key_bytes: &[u8],
+    ) -> Result<Crypto, JsValue> {
+        let public_key = match public_key_bytes.len() {
+            0 => None,
+            32 => {
+                let array: [u8; 32] = public_key_bytes.try_into().unwrap();
+                Some(PublicKey::from(array))
+            }
+            _ => {
+                return Err(format_error(
+                    "Initialization failed",
+                    "Public key must be exactly 32 bytes or empty",
+                ))
+            }
+        };
+
+        let private_key = match private_key_bytes.len() {
+            0 => None,
+            32 => {
+                let array: [u8; 32] = private_key_bytes.try_into().unwrap();
+                Some(StaticSecret::from(array))
+            }
+            _ => {
+                return Err(format_error(
+                    "Initialization failed",
+                    "Private key must be exactly 32 bytes or empty",
+                ))
+            }
+        };
+
+        Ok(Crypto {
+            public_key,
+            private_key,
+        })
+    }
+
     pub fn encrypt(&self, plain_text: &str) -> Result<String, JsValue> {
         let public_key = self
             .public_key
