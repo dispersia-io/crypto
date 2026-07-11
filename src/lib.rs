@@ -22,6 +22,13 @@ struct Payload<'a> {
     data: Cow<'a, str>,
 }
 
+#[wasm_bindgen(getter_with_clone)]
+#[derive(Debug)]
+pub struct DecryptedMessage {
+    pub plain_text: String,
+    pub message_id: String,
+}
+
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Crypto {
@@ -108,7 +115,11 @@ impl Crypto {
         Ok(BASE64.encode(final_bytes))
     }
 
-    pub fn decrypt(&self, encrypted_base64: &str, max_age_ms: u64) -> Result<String, JsValue> {
+    pub fn decrypt(
+        &self,
+        encrypted_base64: &str,
+        max_age_ms: u64,
+    ) -> Result<DecryptedMessage, JsValue> {
         let private_key = self
             .private_key
             .as_ref()
@@ -176,6 +187,9 @@ impl Crypto {
             ));
         }
 
-        Ok(payload.data.into_owned())
+        Ok(DecryptedMessage {
+            plain_text: payload.data.into_owned(),
+            message_id: BASE64.encode(nonce_bytes),
+        })
     }
 }

@@ -34,7 +34,7 @@ fn test_valid_encryption_decryption() {
     let encrypted = crypto.encrypt(plain_text).unwrap();
     assert_ne!(plain_text, encrypted);
 
-    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap();
+    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap().plain_text;
     assert_eq!(plain_text, decrypted);
 }
 
@@ -44,7 +44,7 @@ fn test_short_payload() {
     let plain_text = "A";
 
     let encrypted = crypto.encrypt(plain_text).unwrap();
-    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap();
+    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap().plain_text;
 
     assert_eq!(plain_text, decrypted);
 }
@@ -55,7 +55,7 @@ fn test_long_payload_hybrid_success() {
     let long_text = "A".repeat(100_000); // ~100 KB
 
     let encrypted = crypto.encrypt(&long_text).unwrap();
-    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap();
+    let decrypted = crypto.decrypt(&encrypted, 5000).unwrap().plain_text;
 
     assert_eq!(long_text.len(), decrypted.len());
     assert_eq!(long_text, decrypted);
