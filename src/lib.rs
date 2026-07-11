@@ -3,6 +3,7 @@ use aes_gcm::{
     Aes256Gcm, Key, Nonce,
 };
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
+use bincode::Options;
 use rand::{rngs::OsRng, RngCore};
 use rsa::{
     pkcs8::{DecodePrivateKey, DecodePublicKey},
@@ -27,6 +28,8 @@ pub struct Crypto {
     public_key: Option<RsaPublicKey>,
     private_key: Option<RsaPrivateKey>,
 }
+
+const MAX_PAYLOAD_SIZE: u64 = 10 * 1024 * 1024;
 
 fn format_error(context: &str, error: impl std::fmt::Display) -> JsValue {
     JsValue::from_str(&format!("CryptoError: {} - {}", context, error))
@@ -81,7 +84,9 @@ impl Crypto {
             data: Cow::Borrowed(plain_text),
         };
 
-        let payload_bytes = bincode::serialize(&payload)
+        let payload_bytes = bincode::options()
+            .with_limit(MAX_PAYLOAD_SIZE)
+            .serialize(&payload)
             .map_err(|error| format_error("Bincode serialization failed", error))?;
 
         let cipher = Aes256Gcm::new(aes_key);
@@ -141,7 +146,9 @@ impl Crypto {
             .decrypt(nonce, ciphertext)
             .map_err(|error| format_error("AES decryption failed", error))?;
 
-        let payload: Payload = bincode::deserialize(&decrypted_bytes)
+        let payload: Payload = bincode::options()
+            .with_limit(MAX_PAYLOAD_SIZE)
+            .deserialize(&decrypted_bytes)
             .map_err(|error| format_error("Bincode deserialization failed", error))?;
 
         let now = js_sys::Date::now() as u64;
