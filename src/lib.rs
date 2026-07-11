@@ -72,48 +72,7 @@ impl std::fmt::Debug for Crypto {
 #[wasm_bindgen]
 impl Crypto {
     #[wasm_bindgen(constructor)]
-    pub fn new(public_key_base64: &str, private_key_base64: &str) -> Result<Crypto, JsValue> {
-        let public_key = if public_key_base64.trim().is_empty() {
-            None
-        } else {
-            let bytes = BASE64
-                .decode(public_key_base64.trim())
-                .map_err(|error| format_error("Public key base64 decoding failed", error))?;
-            let array: [u8; 32] = bytes.try_into().map_err(|_| {
-                format_error(
-                    "Public key decoding failed",
-                    "Invalid key length (must be 32 bytes)",
-                )
-            })?;
-            Some(PublicKey::from(array))
-        };
-
-        let private_key = if private_key_base64.trim().is_empty() {
-            None
-        } else {
-            let bytes = BASE64
-                .decode(private_key_base64.trim())
-                .map_err(|error| format_error("Private key base64 decoding failed", error))?;
-            let array: [u8; 32] = bytes.try_into().map_err(|_| {
-                format_error(
-                    "Private key decoding failed",
-                    "Invalid key length (must be 32 bytes)",
-                )
-            })?;
-            Some(StaticSecret::from(array))
-        };
-
-        Ok(Crypto {
-            public_key,
-            private_key,
-        })
-    }
-
-    #[wasm_bindgen]
-    pub fn from_bytes(
-        public_key_bytes: &[u8],
-        private_key_bytes: &[u8],
-    ) -> Result<Crypto, JsValue> {
+    pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
         let public_key = match public_key_bytes.len() {
             0 => None,
             32 => {
