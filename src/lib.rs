@@ -19,6 +19,12 @@ struct Payload<'a> {
 }
 
 #[wasm_bindgen(getter_with_clone)]
+pub struct KeyPair {
+    pub public_key: String,
+    pub private_key: String,
+}
+
+#[wasm_bindgen(getter_with_clone)]
 #[derive(Debug)]
 pub struct DecryptedMessage {
     pub plain_text: String,
@@ -140,6 +146,17 @@ impl Crypto {
             public_key,
             private_key,
         })
+    }
+
+    #[wasm_bindgen]
+    pub fn generate_key_pair() -> KeyPair {
+        let secret = StaticSecret::random_from_rng(&mut OsRng);
+        let public = PublicKey::from(&secret);
+
+        KeyPair {
+            private_key: BASE64.encode(secret.to_bytes()),
+            public_key: BASE64.encode(public.as_bytes()),
+        }
     }
 
     pub fn encrypt(&self, plain_text: &str) -> Result<String, JsValue> {
