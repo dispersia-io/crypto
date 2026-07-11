@@ -5,15 +5,11 @@ use aes_gcm::{
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use bincode::Options;
 use rand::{rngs::OsRng, RngCore};
-use rsa::{
-    pkcs8::{DecodePrivateKey, DecodePublicKey},
-    traits::PublicKeyParts,
-    Oaep, RsaPrivateKey, RsaPublicKey,
-};
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 use std::borrow::Cow;
 use wasm_bindgen::prelude::*;
+use x25519_dalek::{PublicKey, StaticSecret};
 
 #[derive(Serialize, Deserialize)]
 struct Payload<'a> {
@@ -30,38 +26,75 @@ pub struct DecryptedMessage {
 }
 
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct Crypto {
-    public_key: Option<RsaPublicKey>,
-    private_key: Option<RsaPrivateKey>,
+    public_key: Option<PublicKey>,
+    private_key: Option<StaticSecret>,
 }
 
 const MAX_PAYLOAD_SIZE: u64 = 10 * 1024 * 1024;
 
 fn format_error(context: &str, error: impl std::fmt::Display) -> JsValue {
-    JsValue::from_str(&format!("CryptoError: {} - {}", context, error))
+    JsValue::from_str(&format!("CryptoError: {context} - {error}"))
+}
+
+#[inline]
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn get_current_time_ms() -> u64 {
+    #[cfg(target_arch = "wasm32")]
+    {
+        js_sys::Date::now() as u64
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64
+    }
+}
+
+impl std::fmt::Debug for Crypto {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("Crypto")
+            .field("public_key", &self.public_key)
+            .field("private_key", &"[REDACTED]")
+            .finish()
+    }
 }
 
 #[wasm_bindgen]
 impl Crypto {
     #[wasm_bindgen(constructor)]
-    pub fn new(public_key_pem: &str, private_key_pem: &str) -> Result<Crypto, JsValue> {
-        let public_key = if public_key_pem.trim().is_empty() {
+    pub fn new(public_key_base64: &str, private_key_base64: &str) -> Result<Crypto, JsValue> {
+        let public_key = if public_key_base64.trim().is_empty() {
             None
         } else {
-            Some(
-                RsaPublicKey::from_public_key_pem(public_key_pem)
-                    .map_err(|error| format_error("Public key decoding failed", error))?,
-            )
+            let bytes = BASE64
+                .decode(public_key_base64.trim())
+                .map_err(|error| format_error("Public key base64 decoding failed", error))?;
+            let array: [u8; 32] = bytes.try_into().map_err(|_| {
+                format_error(
+                    "Public key decoding failed",
+                    "Invalid key length (must be 32 bytes)",
+                )
+            })?;
+            Some(PublicKey::from(array))
         };
 
-        let private_key = if private_key_pem.trim().is_empty() {
+        let private_key = if private_key_base64.trim().is_empty() {
             None
         } else {
-            Some(
-                RsaPrivateKey::from_pkcs8_pem(private_key_pem)
-                    .map_err(|error| format_error("Private key decoding failed", error))?,
-            )
+            let bytes = BASE64
+                .decode(private_key_base64.trim())
+                .map_err(|error| format_error("Private key base64 decoding failed", error))?;
+            let array: [u8; 32] = bytes.try_into().map_err(|_| {
+                format_error(
+                    "Private key decoding failed",
+                    "Invalid key length (must be 32 bytes)",
+                )
+            })?;
+            Some(StaticSecret::from(array))
         };
 
         Ok(Crypto {
@@ -76,18 +109,21 @@ impl Crypto {
             .as_ref()
             .ok_or_else(|| format_error("Encryption failed", "Missing public key"))?;
 
-        let mut aes_key_bytes = [0u8; 32];
-        OsRng.fill_bytes(&mut aes_key_bytes);
+        let ephemeral_secret = StaticSecret::random_from_rng(&mut OsRng);
+        let ephemeral_public = PublicKey::from(&ephemeral_secret);
+        let shared_secret = ephemeral_secret.diffie_hellman(public_key);
+
+        let mut hasher = Sha256::new();
+        hasher.update(shared_secret.as_bytes());
+        let aes_key_bytes = hasher.finalize();
         let aes_key = Key::<Aes256Gcm>::from_slice(&aes_key_bytes);
 
         let mut nonce_bytes = [0u8; 12];
         OsRng.fill_bytes(&mut nonce_bytes);
         let nonce = Nonce::from_slice(&nonce_bytes);
 
-        let now = js_sys::Date::now() as u64;
-
         let payload = Payload {
-            timestamp: now,
+            timestamp: get_current_time_ms(),
             data: Cow::Borrowed(plain_text),
         };
 
@@ -101,14 +137,9 @@ impl Crypto {
             .encrypt(nonce, payload_bytes.as_ref())
             .map_err(|error| format_error("AES encryption failed", error))?;
 
-        let rsa_encrypted_key = public_key
-            .encrypt(&mut OsRng, Oaep::new::<Sha256>(), &aes_key_bytes)
-            .map_err(|error| format_error("RSA encryption failed", error))?;
+        let mut final_bytes = Vec::with_capacity(32 + nonce_bytes.len() + ciphertext.len());
 
-        let mut final_bytes =
-            Vec::with_capacity(rsa_encrypted_key.len() + nonce_bytes.len() + ciphertext.len());
-
-        final_bytes.extend_from_slice(&rsa_encrypted_key);
+        final_bytes.extend_from_slice(ephemeral_public.as_bytes());
         final_bytes.extend_from_slice(&nonce_bytes);
         final_bytes.extend_from_slice(&ciphertext);
 
@@ -129,25 +160,23 @@ impl Crypto {
             .decode(encrypted_base64)
             .map_err(|error| format_error("Base64 decoding failed", error))?;
 
-        let rsa_len = private_key.size();
-
-        if final_bytes.len() < rsa_len + 12 {
+        if final_bytes.len() < 32 + 12 {
             return Err(format_error("Decryption failed", "Invalid payload length"));
         }
 
-        let (rsa_encrypted_key, rest) = final_bytes.split_at(rsa_len);
+        let (ephemeral_public_bytes, rest) = final_bytes.split_at(32);
         let (nonce_bytes, ciphertext) = rest.split_at(12);
 
-        let aes_key_bytes = private_key
-            .decrypt(Oaep::new::<Sha256>(), rsa_encrypted_key)
-            .map_err(|error| format_error("RSA decryption failed", error))?;
+        let ephemeral_public_array: [u8; 32] = ephemeral_public_bytes
+            .try_into()
+            .map_err(|_| format_error("Decryption failed", "Malformed ephemeral public key"))?;
+        let ephemeral_public = PublicKey::from(ephemeral_public_array);
 
-        if aes_key_bytes.len() != 32 {
-            return Err(format_error(
-                "Decryption failed",
-                "Invalid AES key size extracted",
-            ));
-        }
+        let shared_secret = private_key.diffie_hellman(&ephemeral_public);
+
+        let mut hasher = Sha256::new();
+        hasher.update(shared_secret.as_bytes());
+        let aes_key_bytes = hasher.finalize();
 
         let aes_key = Key::<Aes256Gcm>::from_slice(&aes_key_bytes);
         let cipher = Aes256Gcm::new(aes_key);
@@ -162,7 +191,7 @@ impl Crypto {
             .deserialize(&decrypted_bytes)
             .map_err(|error| format_error("Bincode deserialization failed", error))?;
 
-        let now = js_sys::Date::now() as u64;
+        let now = get_current_time_ms();
 
         let is_expired = payload
             .timestamp
@@ -177,7 +206,7 @@ impl Crypto {
         }
 
         let is_future = now
-            .checked_add(10000)
+            .checked_add(10_000)
             .is_none_or(|future_limit| payload.timestamp > future_limit);
 
         if is_future {

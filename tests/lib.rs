@@ -2,29 +2,8 @@ use base64::Engine;
 use crypto::Crypto;
 use wasm_bindgen_test::*;
 
-const TEST_PUBLIC_KEY: &str = r#"-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7fSACXW6R4i1yrCGbZjOMEPEz
-UnRXV6ziC/TBFQc6l4hky2JN9usMFgIoWTXbZNI1VTkXIqbzrTQp+CVrNLwlFveP
-d3U5g/V1maORezp1pkCLSPIgdO7XA+Mr5mSYS5S6Ic/tXfU7y62bFGsjwwDwFJsF
-Qjq4MqWFSsorzK0W7QIDAQAB
------END PUBLIC KEY-----"#;
-
-const TEST_PRIVATE_KEY: &str = r#"-----BEGIN PRIVATE KEY-----
-MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALt9IAJdbpHiLXKs
-IZtmM4wQ8TNSdFdXrOIL9MEVBzqXiGTLYk326wwWAihZNdtk0jVVORcipvOtNCn4
-JWs0vCUW9493dTmD9XWZo5F7OnWmQItI8iB07tcD4yvmZJhLlLohz+1d9TvLrZsU
-ayPDAPAUmwVCOrgypYVKyivMrRbtAgMBAAECgYAEGARV6OJcLxsc8OM++GlRuqD5
-pOhDa/era+VpPeNNhTeGM+aumyCgv+5GIUSKyNXKMlUvyyLoGTUVYYS3pYwiHZGk
-rViayZwWOkCkR3JF7VIWdwaV4INLxYK6kgLvmQSawwOpC+J9vofCIbXjkUn4EEIX
-LX+cwSBRX5cOaza45QJBAPQds64BQy1xU4D+IUdot3CmlxVb26UOpivBmAWcTB7z
-5dZXmQW0MtXpAsy8zvLLlDpdvmztz9Pu9heD5P1aPzcCQQDEnbScUiCE32Yx5Nnq
-A/Ipbw6oZaBjnOAEljQJTRuzqI+qvvuDzvc+2LEQCmm2WfgqtwbcrDbF7FFRnCUh
-DcT7AkAaou8LKooY+EejSJd7AjsZ6KONqhNCZGHPXnVnD1HjArvucmp5C9uMKbur
-eWKfbYVEBRyVKDHIL0fc8wBWgLVrAkAxRS/oaHA7u9vZLvcovHpnxavPqT/rFnnQ
-zG8X0ZnaiKgP6rIOksPEnPqqAWICT0NwONNgY0uKh7DNGar4QIIXAkEA11w64v4v
-SM0HB6DVzSn9BJmJP5iziSO7LidmC+EZD2neOEM5IX8xuytlLFcoZZdbKVI6TRzG
-psWxW49+Me+bww==
------END PRIVATE KEY-----"#;
+const TEST_PUBLIC_KEY: &str = "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmo=";
+const TEST_PRIVATE_KEY: &str = "dwdtCnMYpX08FsFyUbJmRd9ML4frwJkqsXf7pR25LCo=";
 
 #[wasm_bindgen_test]
 fn test_valid_encryption_decryption() {
@@ -115,21 +94,21 @@ fn test_max_age_expiration() {
 
 #[wasm_bindgen_test]
 fn test_invalid_keys_handling() {
-    let public_key_result = Crypto::new("invalid_public_key", TEST_PRIVATE_KEY);
-    assert!(public_key_result.is_err());
-    assert!(public_key_result
+    let bad_base64_result = Crypto::new("invalid_base64", TEST_PRIVATE_KEY);
+    assert!(bad_base64_result.is_err());
+    assert!(bad_base64_result
         .unwrap_err()
         .as_string()
         .unwrap()
-        .contains("Public key decoding failed"));
+        .contains("Public key base64 decoding failed"));
 
-    let private_key_result = Crypto::new(TEST_PUBLIC_KEY, "invalid_private_key");
-    assert!(private_key_result.is_err());
-    assert!(private_key_result
+    let bad_length_result = Crypto::new(TEST_PUBLIC_KEY, "AQID");
+    assert!(bad_length_result.is_err());
+    assert!(bad_length_result
         .unwrap_err()
         .as_string()
         .unwrap()
-        .contains("Private key decoding failed"));
+        .contains("Invalid key length (must be 32 bytes)"));
 }
 
 #[wasm_bindgen_test]
@@ -139,7 +118,7 @@ fn test_performance() {
 
     let start = js_sys::Date::now();
 
-    let iterations = 50;
+    let iterations = 200;
     for _ in 0..iterations {
         let encrypted = crypto.encrypt(plain_text).unwrap();
         let _decrypted = crypto.decrypt(&encrypted, 5000).unwrap();
@@ -148,7 +127,7 @@ fn test_performance() {
     let elapsed_ms = js_sys::Date::now() - start;
 
     assert!(
-        elapsed_ms < 10000.0,
+        elapsed_ms < 5000.0,
         "Performance degradation: {} iterations took {} ms",
         iterations,
         elapsed_ms
