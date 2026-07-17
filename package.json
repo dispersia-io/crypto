@@ -42,11 +42,12 @@
     "setup:husky": "husky && chmod +x ./.husky/*",
     "clean": "rm -rf dist temp",
     "cleanup": "rm -rf temp",
+    "prebuild:wasm": "command -v wasm-opt >/dev/null 2>&1 || { echo >&2 'Error: wasm-opt is not installed. Please install binaryen (brew install binaryen / apt-get install binaryen)'; exit 1; }",
     "build:wasm:esm": "wasm-pack build --target web --out-dir temp/esm",
     "build:wasm:esm:opt": "wasm-opt -O3 temp/esm/crypto_bg.wasm -o temp/esm/crypto_bg.wasm --enable-bulk-memory --enable-nontrapping-float-to-int",
     "build:wasm:cjs": "wasm-pack build --target nodejs --out-dir temp/cjs",
     "build:wasm:cjs:opt": "wasm-opt -O3 temp/cjs/crypto_bg.wasm -o temp/cjs/crypto_bg.wasm --enable-bulk-memory --enable-nontrapping-float-to-int",
-    "build:wasm": "yarn build:wasm:esm && yarn build:wasm:esm:opt && yarn build:wasm:cjs && yarn build:wasm:cjs:opt",
+    "build:wasm": "yarn prebuild:wasm && yarn build:wasm:esm && yarn build:wasm:esm:opt && yarn build:wasm:cjs && yarn build:wasm:cjs:opt",
     "build:ts": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "build:arrange": "cp temp/esm/crypto* dist/esm/ && cp temp/cjs/crypto* dist/cjs/ && mv dist/esm/esm.js dist/esm/index.js && mv dist/esm/esm.d.ts dist/esm/index.d.ts && mv dist/cjs/cjs.js dist/cjs/index.js && mv dist/cjs/cjs.d.ts dist/cjs/index.d.ts && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build": "yarn clean && yarn build:wasm && yarn build:ts && yarn build:arrange && yarn cleanup",
@@ -82,8 +83,7 @@
     "prettier": "^3.8.4",
     "prettier-plugin-sh": "^0.18.1",
     "ts-jest": "^29.4.11",
-    "typescript": "^6.0.3",
-    "wasm-opt": "^1.4.0"
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": "^20.9.0 || >=21.1.0 <25.0.0"
