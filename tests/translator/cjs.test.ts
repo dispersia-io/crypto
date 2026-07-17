@@ -1,39 +1,52 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { Buffer } from 'node:buffer';
 import { Crypto } from '../../dist/cjs/index.js';
 
-const TEST_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7fSACXW6R4i1yrCGbZjOMEPEz
-UnRXV6ziC/TBFQc6l4hky2JN9usMFgIoWTXbZNI1VTkXIqbzrTQp+CVrNLwlFveP
-d3U5g/V1maORezp1pkCLSPIgdO7XA+Mr5mSYS5S6Ic/tXfU7y62bFGsjwwDwFJsF
-Qjq4MqWFSsorzK0W7QIDAQAB
------END PUBLIC KEY-----`;
+describe('Crypto Translator (CJS)', () => {
+  const PUBLIC_KEY_BASE64 = 'HFgjF7vWprdXpDt3W4QJXX382auktMbEzHdZTCt2PTk=';
+  const PRIVATE_KEY_BASE64 = 'wZ6RKIt5VTVAvcLHS2vf3qXYs0teYsMj2welcJvAb6Y=';
 
-const TEST_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
-MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALt9IAJdbpHiLXKs
-IZtmM4wQ8TNSdFdXrOIL9MEVBzqXiGTLYk326wwWAihZNdtk0jVVORcipvOtNCn4
-JWs0vCUW9493dTmD9XWZo5F7OnWmQItI8iB07tcD4yvmZJhLlLohz+1d9TvLrZsU
-ayPDAPAUmwVCOrgypYVKyivMrRbtAgMBAAECgYAEGARV6OJcLxsc8OM++GlRuqD5
-pOhDa/era+VpPeNNhTeGM+aumyCgv+5GIUSKyNXKMlUvyyLoGTUVYYS3pYwiHZGk
-rViayZwWOkCkR3JF7VIWdwaV4INLxYK6kgLvmQSawwOpC+J9vofCIbXjkUn4EEIX
-LX+cwSBRX5cOaza45QJBAPQds64BQy1xU4D+IUdot3CmlxVb26UOpivBmAWcTB7z
-5dZXmQW0MtXpAsy8zvLLlDpdvmztz9Pu9heD5P1aPzcCQQDEnbScUiCE32Yx5Nnq
-A/Ipbw6oZaBjnOAEljQJTRuzqI+qvvuDzvc+2LEQCmm2WfgqtwbcrDbF7FFRnCUh
-DcT7AkAaou8LKooY+EejSJd7AjsZ6KONqhNCZGHPXnVnD1HjArvucmp5C9uMKbur
-eWKfbYVEBRyVKDHIL0fc8wBWgLVrAkAxRS/oaHA7u9vZLvcovHpnxavPqT/rFnnQ
-zG8X0ZnaiKgP6rIOksPEnPqqAWICT0NwONNgY0uKh7DNGar4QIIXAkEA11w64v4v
-SM0HB6DVzSn9BJmJP5iziSO7LidmC+EZD2neOEM5IX8xuytlLFcoZZdbKVI6TRzG
-psWxW49+Me+bww==
------END PRIVATE KEY-----`;
+  const PUBLIC_KEY = new Uint8Array(Buffer.from(PUBLIC_KEY_BASE64, 'base64'));
+  const PRIVATE_KEY = new Uint8Array(Buffer.from(PRIVATE_KEY_BASE64, 'base64'));
 
-describe('Crypto Translator (CommonJS)', () => {
+  describe('Key Generation & Initialization', () => {
+    it('generates valid key pair', () => {
+      const keys = Crypto.generateKeyPair();
+
+      expect(keys.publicKey).toBeDefined();
+      expect(keys.privateKey).toBeDefined();
+    });
+
+    it('initializes from bytes properly and keeps them immutable', () => {
+      const mockPublicKey = new Uint8Array(32).fill(1);
+      const mockPrivateKey = new Uint8Array(32).fill(2);
+
+      const crypto = Crypto.init({
+        publicKey: mockPublicKey,
+        privateKey: mockPrivateKey,
+      });
+
+      expect(crypto).toBeInstanceOf(Crypto);
+
+      expect(mockPublicKey[0]).toBe(1);
+      expect(mockPrivateKey[0]).toBe(2);
+    });
+  });
+
   describe('Initialization checks', () => {
     it('throws if both keys are completely missing', () => {
-      expect(() => Crypto.init({ publicKey: '', privateKey: '' })).toThrow(
+      expect(() => Crypto.init({ publicKey: undefined, privateKey: undefined })).toThrow(
         'At least one of the keys is required',
       );
     });
 
     it('throws when trying to encrypt without initialization', () => {
-      const crypto = new Crypto();
+      const crypto = new (Crypto as any)();
       expect(() => crypto.encrypt('test')).toThrow('Crypto is not initialized');
     });
   });
@@ -43,37 +56,33 @@ describe('Crypto Translator (CommonJS)', () => {
 
     beforeAll(() => {
       crypto = Crypto.init({
-        publicKey: TEST_PUBLIC_KEY,
-        privateKey: TEST_PRIVATE_KEY,
+        publicKey: PUBLIC_KEY,
+        privateKey: PRIVATE_KEY,
       });
     });
 
     it('throws if data for encryption is not a string', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.encrypt(123 as any)).toThrow(TypeError);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.encrypt({ foo: 'bar' } as any)).toThrow(TypeError);
     });
 
     it('throws if data for decryption is not a string', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
       expect(() => crypto.decrypt(123 as any, { maxAgeMs: 1000n })).toThrow(TypeError);
     });
 
     it('throws if maxAgeMs is not a BigInt', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
       expect(() => crypto.decrypt('some_data', { maxAgeMs: 1000 as any })).toThrow(TypeError);
     });
   });
 
   describe('Integration & Output Formatting', () => {
-    it('encrypts to base64 and verifies inequality with plaintext', () => {
+    it('encrypts to base64, verifies inequality, and decrypts returning plainText and messageId', () => {
       const crypto = Crypto.init({
-        publicKey: TEST_PUBLIC_KEY,
-        privateKey: TEST_PRIVATE_KEY,
+        publicKey: PUBLIC_KEY,
+        privateKey: PRIVATE_KEY,
       });
 
-      const plainText = 'CommonJS Test Message';
+      const plainText = 'CJS Test Message';
       const encrypted = crypto.encrypt(plainText);
 
       expect(encrypted).not.toEqual(plainText);
@@ -81,6 +90,11 @@ describe('Crypto Translator (CommonJS)', () => {
 
       const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u;
       expect(base64Regex.test(encrypted)).toBe(true);
+
+      const decrypted = crypto.decrypt(encrypted, { maxAgeMs: 5000n });
+      expect(decrypted.plainText).toEqual(plainText);
+      expect(typeof decrypted.messageId).toBe('string');
+      expect(decrypted.messageId.length).toBeGreaterThan(0);
     });
   });
 });
