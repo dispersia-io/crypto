@@ -43,6 +43,13 @@ fn format_error(context: &str, error: impl std::fmt::Display) -> JsValue {
     JsValue::from_str(&format!("CryptoError: {context} - {error}"))
 }
 
+fn bincode_config() -> impl bincode::Options {
+    bincode::options()
+        .with_limit(MAX_PAYLOAD_SIZE)
+        .with_fixint_encoding()
+        .with_little_endian()
+}
+
 #[inline]
 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 fn get_current_time_ms() -> u64 {
@@ -73,6 +80,13 @@ impl std::fmt::Debug for Crypto {
 impl Crypto {
     #[wasm_bindgen(constructor)]
     pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
+        if public_key_bytes.len() != 32 || private_key_bytes.len() != 32 {
+            return Err(format_error(
+                "Initialization failed",
+                "Invalid key length (must be 32 bytes)",
+            ));
+        }
+
         let public_key = match public_key_bytes.len() {
             0 => None,
             32 => {
@@ -142,8 +156,7 @@ impl Crypto {
             data: Cow::Borrowed(plain_text),
         };
 
-        let payload_bytes = bincode::options()
-            .with_limit(MAX_PAYLOAD_SIZE)
+        let payload_bytes = bincode_config()
             .serialize(&payload)
             .map_err(|error| format_error("Bincode serialization failed", error))?;
 
@@ -201,8 +214,7 @@ impl Crypto {
             .decrypt(nonce, ciphertext)
             .map_err(|error| format_error("AES decryption failed", error))?;
 
-        let payload: Payload = bincode::options()
-            .with_limit(MAX_PAYLOAD_SIZE)
+        let payload: Payload = bincode_config()
             .deserialize(&decrypted_bytes)
             .map_err(|error| format_error("Bincode deserialization failed", error))?;
 
