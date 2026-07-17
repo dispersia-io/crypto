@@ -243,6 +243,7 @@ impl Crypto {
         Self::new_native(public_key_bytes, private_key_bytes).map_err(|e| JsValue::from_str(&e))
     }
 
+    #[must_use]
     #[wasm_bindgen]
     pub fn generate_key_pair() -> KeyPair {
         let secret = StaticSecret::random_from_rng(OsRng);
