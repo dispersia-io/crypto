@@ -77,6 +77,16 @@ impl std::fmt::Debug for Crypto {
 }
 
 impl Crypto {
+    /// Initializes a new native `Crypto` instance using byte slices for the public and private keys.
+    ///
+    /// Both keys are optional from a functional perspective but must conform to cryptographic constraints if provided.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `String` error representation if:
+    /// - The provided `public_key_bytes` slice is populated but its length is not exactly 32 bytes.
+    /// - The provided `private_key_bytes` slice is populated but its length is not exactly 32 bytes.
+    /// - Fixed-size cryptographic array conversion fails due to anomalous internal constraints.
     pub fn new_native(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, String> {
         let valid_pub = public_key_bytes.is_empty() || public_key_bytes.len() == 32;
         let valid_priv = private_key_bytes.is_empty() || private_key_bytes.len() == 32;
@@ -91,7 +101,10 @@ impl Crypto {
         let public_key = match public_key_bytes.len() {
             0 => None,
             32 => {
-                let array: [u8; 32] = public_key_bytes.try_into().unwrap();
+                let array: [u8; 32] = public_key_bytes
+                    .try_into()
+                    .map_err(|_| "Public key must be exactly 32 bytes".to_string())?;
+
                 Some(PublicKey::from(array))
             }
             _ => unreachable!(),
@@ -100,7 +113,10 @@ impl Crypto {
         let private_key = match private_key_bytes.len() {
             0 => None,
             32 => {
-                let array: [u8; 32] = private_key_bytes.try_into().unwrap();
+                let array: [u8; 32] = private_key_bytes
+                    .try_into()
+                    .map_err(|_| "Private key must be exactly 32 bytes".to_string())?;
+
                 Some(StaticSecret::from(array))
             }
             _ => unreachable!(),
@@ -112,6 +128,14 @@ impl Crypto {
         })
     }
 
+    /// Encrypts a plaintext string slice using an asymmetric X25519 Diffie-Hellman key exchange and symmetric AES-256-GCM authenticated encryption.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `String` error representation if:
+    /// - The `public_key` field is missing from the current `Crypto` context.
+    /// - Binary serialization of the structural payload fails due to encoding bounds.
+    /// - The underlying hardware or software cryptographic layer fails to execute AES-256-GCM encryption.
     pub fn encrypt_native(&self, plain_text: &str) -> Result<String, String> {
         let public_key = self
             .public_key
@@ -154,6 +178,18 @@ impl Crypto {
         Ok(BASE64.encode(final_bytes))
     }
 
+    /// Decrypts a Base64-encoded encrypted payload using the local asymmetric private key, and validates integrity constraints along with expiration bounds.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `String` error representation if:
+    /// - The `private_key` field is missing from the current `Crypto` context.
+    /// - The input string is not a syntactically valid Base64 sequence.
+    /// - The decoded byte array is truncated and lacks the minimum required structure length (44 bytes).
+    /// - The symmetric AES-256-GCM authenticated decryption fails (e.g., due to data tampering or key mismatch).
+    /// - Deserialization of the decrypted payload bytes fails.
+    /// - The message epoch timestamp has exceeded the allowed time-to-live delta bounded by `max_age_ms`.
+    /// - The message clock state originates from an invalid temporal future offset.
     pub fn decrypt_native(
         &self,
         encrypted_base64: &str,
@@ -232,11 +268,20 @@ impl Crypto {
 
 #[wasm_bindgen]
 impl Crypto {
+    /// WebAssembly-compatible constructor creating an instance of `Crypto` using key byte arrays.
+    ///
+    /// # Errors
+    ///
+    /// Returns a JavaScript string primitive wrapping the initialization failure context if the byte layouts are incorrect.
     #[wasm_bindgen(constructor)]
     pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
         Self::new_native(public_key_bytes, private_key_bytes).map_err(|e| JsValue::from_str(&e))
     }
 
+    /// Generates a randomized, cryptographically secure X25519 asymmetric key pair.
+    ///
+    /// Both keys within the returned structure are serialized as Base64-encoded strings.
+    #[must_use]
     #[wasm_bindgen]
     pub fn generate_key_pair() -> KeyPair {
         let secret = StaticSecret::random_from_rng(OsRng);
@@ -248,11 +293,21 @@ impl Crypto {
         }
     }
 
+    /// JavaScript binding interacting with `encrypt_native` to process a plaintext payload string.
+    ///
+    /// # Errors
+    ///
+    /// Throws a JavaScript exception string if runtime encryption constraints or serialization targets fail.
     pub fn encrypt(&self, plain_text: &str) -> Result<String, JsValue> {
         self.encrypt_native(plain_text)
             .map_err(|e| JsValue::from_str(&e))
     }
 
+    /// JavaScript binding interacting with `decrypt_native` to isolate and decrypt structural targets.
+    ///
+    /// # Errors
+    ///
+    /// Throws a JavaScript exception string if signature matching, temporal validations, or decoding pipelines drop errors.
     pub fn decrypt(
         &self,
         encrypted_base64: &str,
