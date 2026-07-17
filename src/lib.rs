@@ -80,7 +80,10 @@ impl std::fmt::Debug for Crypto {
 impl Crypto {
     #[wasm_bindgen(constructor)]
     pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
-        if public_key_bytes.len() != 32 || private_key_bytes.len() != 32 {
+        let is_public_key_valid = public_key_bytes.is_empty() || public_key_bytes.len() == 32;
+        let is_private_key_valid = private_key_bytes.is_empty() || private_key_bytes.len() == 32;
+
+        if !is_public_key_valid || !is_private_key_valid {
             return Err(format_error(
                 "Initialization failed",
                 "Invalid key length (must be 32 bytes)",
