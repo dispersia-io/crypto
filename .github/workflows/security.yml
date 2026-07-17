@@ -72,7 +72,7 @@ jobs:
           toolchain: nightly
 
       - name: Cache cargo-fuzz binary
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cargo/bin/cargo-fuzz
           key: ${{ runner.os }}-cargo-fuzz-${{ github.sha }}
@@ -84,7 +84,7 @@ jobs:
           cargo fuzz --version || cargo install cargo-fuzz
 
       - name: Restore fuzz corpus
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: fuzz/corpus/${{ matrix.target }}
           key: ${{ runner.os }}-fuzz-corpus-${{ matrix.target }}-
@@ -96,7 +96,7 @@ jobs:
 
       - name: Upload crash artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fuzz-crash-${{ matrix.target }}-${{ github.run_id }}
           path: fuzz/artifacts/${{ matrix.target }}/
@@ -119,7 +119,7 @@ jobs:
           toolchain: nightly
 
       - name: Cache cargo-fuzz binary
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cargo/bin/cargo-fuzz
           key: ${{ runner.os }}-cargo-fuzz-${{ github.sha }}
@@ -131,7 +131,7 @@ jobs:
           cargo fuzz --version || cargo install cargo-fuzz
 
       - name: Restore/save fuzz corpus
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: fuzz/corpus/${{ matrix.target }}
           key: ${{ runner.os }}-fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
@@ -143,7 +143,7 @@ jobs:
 
       - name: Upload crash artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fuzz-crash-${{ matrix.target }}-${{ github.run_id }}
           path: fuzz/artifacts/${{ matrix.target }}/
