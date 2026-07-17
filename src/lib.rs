@@ -126,7 +126,7 @@ impl Crypto {
 
     #[wasm_bindgen]
     pub fn generate_key_pair() -> KeyPair {
-        let secret = StaticSecret::random_from_rng(&mut OsRng);
+        let secret = StaticSecret::random_from_rng(OsRng);
         let public = PublicKey::from(&secret);
 
         KeyPair {
@@ -141,7 +141,7 @@ impl Crypto {
             .as_ref()
             .ok_or_else(|| format_error("Encryption failed", "Missing public key"))?;
 
-        let ephemeral_secret = StaticSecret::random_from_rng(&mut OsRng);
+        let ephemeral_secret = StaticSecret::random_from_rng(OsRng);
         let ephemeral_public = PublicKey::from(&ephemeral_secret);
         let shared_secret = ephemeral_secret.diffie_hellman(public_key);
 
