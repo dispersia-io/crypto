@@ -58,7 +58,14 @@
     "test:rs": "wasm-pack test --node",
     "test:rs:coverage": "cargo llvm-cov --all-features --lcov --output-path coverage-rs.lcov",
     "test:js": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test": "yarn build && yarn test:js && yarn test:rs"
+    "test": "yarn build && yarn test:js && yarn test:rs",
+    "sec:audit": "cargo audit",
+    "sec:deny": "cargo deny check",
+    "sec:static-analyze": "cargo clippy --all-targets --all-features -- -D warnings",
+    "sec:fuzz:decrypt": "cargo +nightly fuzz run fuzz_decrypt -- -max_total_time=60",
+    "sec:fuzz:roundtrip": "cargo +nightly fuzz run fuzz_roundtrip -- -max_total_time=60",
+    "sec:fuzz": "yarn sec:fuzz:decrypt && yarn sec:fuzz:roundtrip",
+    "sec": "yarn sec:audit && yarn sec:deny && yarn sec:static-analyze && yarn sec:fuzz"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.1.0",
