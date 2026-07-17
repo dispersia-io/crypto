@@ -17,6 +17,9 @@ jobs:
 
   publish:
     needs: [build, test]
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/publish.yml
     secrets:
       NPM_PUBLISH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
