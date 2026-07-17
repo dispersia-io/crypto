@@ -15,8 +15,12 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  security:
+    needs: build
+    uses: ./.github/workflows/security.yml
+
   publish:
-    needs: [build, test]
+    needs: [build, test, security]
     permissions:
       id-token: write
       contents: read

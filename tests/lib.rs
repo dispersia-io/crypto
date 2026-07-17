@@ -144,7 +144,7 @@ fn test_invalid_keys_handling() {
         .unwrap_err()
         .as_string()
         .unwrap()
-        .contains("Invalid key length"));
+        .contains("Keys must be exactly 32 bytes or empty"));
 }
 
 #[wasm_bindgen_test]

@@ -1,0 +1,31 @@
+[package]
+name = "crypto-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+base64 = "0.21"
+libfuzzer-sys = "0.4"
+rand = "0.8"
+x25519-dalek = { version = "2.0", features = ["static_secrets"] }
+
+[dependencies.crypto]
+path = ".."
+
+[[bin]]
+name = "fuzz_decrypt"
+path = "fuzz_targets/fuzz_decrypt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_roundtrip"
+path = "fuzz_targets/fuzz_roundtrip.rs"
+test = false
+doc = false
+bench = false

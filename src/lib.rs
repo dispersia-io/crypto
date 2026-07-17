@@ -39,8 +39,8 @@ pub struct Crypto {
 
 const MAX_PAYLOAD_SIZE: u64 = 10 * 1024 * 1024;
 
-fn format_error(context: &str, error: impl std::fmt::Display) -> JsValue {
-    JsValue::from_str(&format!("CryptoError: {context} - {error}"))
+fn format_error(context: &str, error: impl std::fmt::Display) -> String {
+    format!("CryptoError: {context} - {error}")
 }
 
 fn bincode_config() -> impl bincode::Options {
@@ -76,14 +76,15 @@ impl std::fmt::Debug for Crypto {
     }
 }
 
-#[wasm_bindgen]
 impl Crypto {
-    #[wasm_bindgen(constructor)]
-    pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
-        if public_key_bytes.len() != 32 || private_key_bytes.len() != 32 {
+    pub fn new_native(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, String> {
+        let valid_pub = public_key_bytes.is_empty() || public_key_bytes.len() == 32;
+        let valid_priv = private_key_bytes.is_empty() || private_key_bytes.len() == 32;
+
+        if !valid_pub || !valid_priv {
             return Err(format_error(
                 "Initialization failed",
-                "Invalid key length (must be 32 bytes)",
+                "Keys must be exactly 32 bytes or empty",
             ));
         }
 
@@ -93,12 +94,7 @@ impl Crypto {
                 let array: [u8; 32] = public_key_bytes.try_into().unwrap();
                 Some(PublicKey::from(array))
             }
-            _ => {
-                return Err(format_error(
-                    "Initialization failed",
-                    "Public key must be exactly 32 bytes or empty",
-                ))
-            }
+            _ => unreachable!(),
         };
 
         let private_key = match private_key_bytes.len() {
@@ -107,12 +103,7 @@ impl Crypto {
                 let array: [u8; 32] = private_key_bytes.try_into().unwrap();
                 Some(StaticSecret::from(array))
             }
-            _ => {
-                return Err(format_error(
-                    "Initialization failed",
-                    "Private key must be exactly 32 bytes or empty",
-                ))
-            }
+            _ => unreachable!(),
         };
 
         Ok(Crypto {
@@ -121,24 +112,13 @@ impl Crypto {
         })
     }
 
-    #[wasm_bindgen]
-    pub fn generate_key_pair() -> KeyPair {
-        let secret = StaticSecret::random_from_rng(&mut OsRng);
-        let public = PublicKey::from(&secret);
-
-        KeyPair {
-            private_key: BASE64.encode(secret.to_bytes()),
-            public_key: BASE64.encode(public.as_bytes()),
-        }
-    }
-
-    pub fn encrypt(&self, plain_text: &str) -> Result<String, JsValue> {
+    pub fn encrypt_native(&self, plain_text: &str) -> Result<String, String> {
         let public_key = self
             .public_key
             .as_ref()
             .ok_or_else(|| format_error("Encryption failed", "Missing public key"))?;
 
-        let ephemeral_secret = StaticSecret::random_from_rng(&mut OsRng);
+        let ephemeral_secret = StaticSecret::random_from_rng(OsRng);
         let ephemeral_public = PublicKey::from(&ephemeral_secret);
         let shared_secret = ephemeral_secret.diffie_hellman(public_key);
 
@@ -174,11 +154,11 @@ impl Crypto {
         Ok(BASE64.encode(final_bytes))
     }
 
-    pub fn decrypt(
+    pub fn decrypt_native(
         &self,
         encrypted_base64: &str,
         max_age_ms: u64,
-    ) -> Result<DecryptedMessage, JsValue> {
+    ) -> Result<DecryptedMessage, String> {
         let private_key = self
             .private_key
             .as_ref()
@@ -247,5 +227,38 @@ impl Crypto {
             plain_text: payload.data.into_owned(),
             message_id: BASE64.encode(nonce_bytes),
         })
+    }
+}
+
+#[wasm_bindgen]
+impl Crypto {
+    #[wasm_bindgen(constructor)]
+    pub fn new(public_key_bytes: &[u8], private_key_bytes: &[u8]) -> Result<Crypto, JsValue> {
+        Self::new_native(public_key_bytes, private_key_bytes).map_err(|e| JsValue::from_str(&e))
+    }
+
+    #[wasm_bindgen]
+    pub fn generate_key_pair() -> KeyPair {
+        let secret = StaticSecret::random_from_rng(OsRng);
+        let public = PublicKey::from(&secret);
+
+        KeyPair {
+            private_key: BASE64.encode(secret.to_bytes()),
+            public_key: BASE64.encode(public.as_bytes()),
+        }
+    }
+
+    pub fn encrypt(&self, plain_text: &str) -> Result<String, JsValue> {
+        self.encrypt_native(plain_text)
+            .map_err(|e| JsValue::from_str(&e))
+    }
+
+    pub fn decrypt(
+        &self,
+        encrypted_base64: &str,
+        max_age_ms: u64,
+    ) -> Result<DecryptedMessage, JsValue> {
+        self.decrypt_native(encrypted_base64, max_age_ms)
+            .map_err(|e| JsValue::from_str(&e))
     }
 }

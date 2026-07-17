@@ -1,0 +1,64 @@
+# Configuration for 'cargo-deny' dependency analytics.
+
+[graph]
+# Ensure metadata is collected with all features to check the entire dependency tree
+all-features = true
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+# 1. ADVISORIES CHECK (RustSec Vulnerability Database)
+[advisories]
+db-urls = ["https://github.com/rustsec/advisory-db"]
+ignore = [
+    # bincode 1.3.3 is feature-complete and stable. Unmaintained status is due to a team incident, not a code defect.
+    { id = "RUSTSEC-2025-0141", reason = "Accepting unmaintained status as 1.3.3 is considered a complete version by authors" },
+]
+
+# 2. LICENSE COMPLIANCE
+[licenses]
+# Explicitly allowed licenses for open-source development and commercial safety
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+#   "ISC",
+#   "CC0-1.0",
+    "Unicode-3.0"
+#   "Unlicense"
+]
+confidence-threshold = 0.8
+
+[licenses.private]
+# Do not enforce license checks on private workspace crates that aren't published
+ignore = true
+
+# 3. BANS & DUPLICATE DETECTION
+[bans]
+# Fail the build if multiple versions of the exact same crate are introduced
+multiple-versions = "deny"
+# Deny wildcard dependencies (e.g. crate = "*") as they pose a severe supply-chain risk
+wildcards = "deny"
+highlight = "all"
+
+workspace-default-features = "allow"
+external-default-features = "allow"
+
+# Allowed duplicates (if bumping a transitive dependency is blocked by upstream crates)
+skip = [
+    # Example: "indexmap@1.9.3"
+]
+skip-tree = []
+
+# 4. SOURCE VERIFICATION
+[sources]
+# Deny unknown registries and unapproved direct git repositories
+unknown-registry = "deny"
+unknown-git = "deny"
+
+# Only allow the official crates.io registry index
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
