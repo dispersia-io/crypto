@@ -91,7 +91,10 @@ impl Crypto {
         let public_key = match public_key_bytes.len() {
             0 => None,
             32 => {
-                let array: [u8; 32] = public_key_bytes.try_into().unwrap();
+                let array: [u8; 32] = public_key_bytes
+                    .try_into()
+                    .map_err(|_| "Public key must be exactly 32 bytes".to_string())?;
+
                 Some(PublicKey::from(array))
             }
             _ => unreachable!(),
@@ -100,7 +103,10 @@ impl Crypto {
         let private_key = match private_key_bytes.len() {
             0 => None,
             32 => {
-                let array: [u8; 32] = private_key_bytes.try_into().unwrap();
+                let array: [u8; 32] = private_key_bytes
+                    .try_into()
+                    .map_err(|_| "Private key must be exactly 32 bytes".to_string())?;
+
                 Some(StaticSecret::from(array))
             }
             _ => unreachable!(),
