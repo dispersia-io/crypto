@@ -37,7 +37,7 @@ jobs:
         uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-artifacts
 
@@ -51,7 +51,7 @@ jobs:
         run: yarn test:js --coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
